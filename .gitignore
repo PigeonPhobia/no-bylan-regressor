@@ -1,2 +1,4 @@
 utils/.ipynb_checkpoints/
 .ipynb_checkpoints/
+.idea/
+utils/__pycache__/
