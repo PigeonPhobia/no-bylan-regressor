@@ -52,7 +52,8 @@ def map_subzone_by_geo_location_knn(df):
     df.loc[subzone_mask_na, 'subzone'] = pred_subzones
 
 # num beds num bath
-
+def num_beds(df):
+    print("hello world")
 
 
 # tenure year
