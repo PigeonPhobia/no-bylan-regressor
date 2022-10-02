@@ -50,3 +50,13 @@ def map_subzone_by_geo_location_knn(df):
     pred_subzones = subzone_knn_classifier.predict(property_location_pred)
     print(pred_subzones)
     df.loc[subzone_mask_na, 'subzone'] = pred_subzones
+
+# num beds num bath
+
+
+
+# tenure year
+
+
+
+# size price
