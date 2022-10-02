@@ -37,6 +37,7 @@ def save_geo_scatter_plot(lat_array, lng_array, filename):
     plt.savefig(filename, dpi=500)
 
 
+# need to fix lat and lng first
 def map_subzone_by_geo_location_knn(df):
     subzone_mask_na = df['subzone'].isna()
     df_na_subzone = df[subzone_mask_na]
