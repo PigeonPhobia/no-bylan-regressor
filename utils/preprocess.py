@@ -61,3 +61,90 @@ def num_beds(df):
 
 
 # size price
+def df_process_size_sqft(df):
+    # preprocess obvious outliers
+    df["size_sqft"] = np.where(df["size_sqft"] > 1e6, df["size_sqft"]/1000, df["size_sqft"])
+    df["size_sqft"] = np.where(df["size_sqft"] > 60000, df["size_sqft"]/10, df["size_sqft"])
+    df["size_sqft"] = np.where(df["size_sqft"] == 0, 1690, df["size_sqft"])
+
+    # find outliers by rules and process these outliers separately
+    min_extre_list = []
+    max_extre_list = []
+
+    for uni_name in uni_property_name:
+        data_desc = df[df['property_name']==uni_name]['size_sqft'].describe()
+        mid_dt = data_desc['50%']    
+        min_dt = data_desc['min']
+        max_dt = data_desc['max']
+
+        # based on assumption that size_sqft properties with same property_name cannot range outside [mid/10, mid*10]
+        # and data input may confuse size_sqft and size in square meters
+        if min_dt < mid_dt / 10:
+            min_extre_list += df[(df['size_sqft'] < mid_dt/10) & (df['property_name'] == uni_name)]['listing_id'].values.tolist()
+
+        if max_dt > mid_dt * 10:
+            max_extre_list += df[(df['size_sqft'] > mid_dt*10) & (df['property_name'] == uni_name)]['listing_id'].values.tolist()
+
+
+        prt_type = df[df['property_name']==uni_name]['property_type'].unique()
+        for p_type in prt_type:
+            prt_desc = df[(df['property_name']==uni_name) & (df['property_type']==p_type)]['size_sqft'].describe()
+            mid_dt = data_desc['50%']    
+            min_dt = data_desc['min']
+            max_dt = data_desc['max']
+            # based on assumption that size_sqft properties with same property_name and same property_type cannot range outside [mid/3, mid*3]
+            # and assign value with similar size_sqft to this data point
+            if min_dt < mid_dt / 5:
+                df[(df['size_sqft'] < mid_dt/5) & (df['property_name'] == uni_name) & (df['property_type'] == p_type)] = mid_dt
+
+            if max_dt > mid_dt * 5:
+                df[(df['size_sqft'] > mid_dt*5) & (df['property_name'] == uni_name) & (df['property_type'] == p_type)] = mid_dt
+
+    for lst_id in min_extre_list:
+        df["size_sqft"] = np.where(df["listing_id"] == lst_id, df["size_sqft"] * 10, df["size_sqft"])
+
+    for lst_id in max_extre_list:
+        df["size_sqft"] = np.where(df["listing_id"] == lst_id, df["size_sqft"] / 10, df["size_sqft"])
+
+
+def df_process_price(df):
+    df = df.drop(df[df['price']==0].index)
+
+    df['price_sqft'] = df['price'] / df['size_sqft']
+    min_price_extre_list = []
+    max_price_extre_list = []
+
+    for uni_name in uni_property_name:
+        price_describe = df[df['property_name']==uni_name]['price_sqft'].describe()
+        mid_dt = price_describe['50%']
+        min_dt = price_describe['min']
+        max_dt = price_describe['max']
+        if min_dt < mid_dt / 10:
+            min_price_extre_list += df[(df['price_sqft'] < mid_dt/10) & (df['property_name'] == uni_name)]['listing_id'].values.tolist()
+
+        if max_dt > mid_dt * 10:
+            max_price_extre_list += df[(df['price_sqft'] > mid_dt*10) & (df['property_name'] == uni_name)]['listing_id'].values.tolist()
+
+
+    for i in max_price_extre_list:
+        idx = df[df['listing_id']==i].index
+        property_name = df[df['listing_id']==i]['property_name'].values[0]
+        price = df[df['listing_id']==i]['price'].values[0]
+        price_describe = df[df['property_name']==property_name]['price'].describe()
+        quarter3_dt = price_describe['75%']
+
+        while price > quarter3_dt:
+            df.loc[idx, ['price']] = price/10
+            price /= 10
+
+
+
+
+
+
+
+
+
+
+
+
