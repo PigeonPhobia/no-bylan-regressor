@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -56,7 +57,81 @@ def num_beds(df):
     print("hello world")
 
 
-# tenure year
+# tenure & year
+# pre-condition: property
+def normalize_tenure(df):
+    df['tenure'] = df['tenure'].astype(str)
+    tenure_type = []
+
+    for i in range(len(df['tenure'])):
+        if df['tenure'][i] != 'nan':
+            if 'leasehold' in df['tenure'][i]:
+                temp = int(df['tenure'][i].split('-')[0])
+                tenure_type.append(temp)
+#                 tenure_type.append(normalize_tenure(temp))
+            else:
+                tenure_type.append('freehold')
+
+        else:
+            if df['property_type'][i] == 'hdb':
+                tenure_type.append(99)
+
+            else:
+                tenure_type.append(np.nan)
+    df['tenure'] = pd.Series(tenure_type)
+
+
+# def add_leaselast_time(df):   
+#     # Handle 'tenure' and 'built_year' column
+#     df['tenure'] = df['tenure'].astype(str)
+#     df['built_year'] = df['built_year'].astype(str)
+
+#     leasehold_time = []
+#     tenure_type = []
+
+#     for i in range(len(df['tenure'])):
+
+#         if df['tenure'][i] != 'nan':
+#             if 'leasehold' in df['tenure'][i]:
+#                 temp = int(df['tenure'][i].split('-')[0])
+                
+#                 if len(df['built_year'][i]) != 0:
+#                     hold_time = temp + float(df['built_year'][i]) - 2022
+#                     leasehold_time.append(hold_time)
+                    
+#                 else:
+#                     leasehold_time.append('nan')
+                
+#                 tenure_type.append(temp)
+# #                 tenure_type.append(normalize_tenure(temp))
+
+
+#             else:
+#                 leasehold_time.append('infinite')
+#                 tenure_type.append('freehold')
+
+#         else:
+#             if df['property_type'][i] == 'hdb':
+#                 if len(df['built_year'][i]) != 0:
+#                     hold_time = 99 + float(df['built_year'][i]) - 2022
+#                     leasehold_time.append(hold_time)
+                    
+#                     tenure_type.append(99)
+
+#             else:
+#                 leasehold_time.append('nan')
+#                 tenure_type.append('nan')
+
+#     df['tenure_type'] = pd.Series(tenure_type)
+#     df['leaselast_time'] = pd.Series(leasehold_time)
+
+
+# 99.co/singapore/insider/big-leasehold-debate
+def normalize_tenure_to_three_cat(a):
+    if abs(a - 99) < abs(a - 999):
+        return 99
+    return 999
+
 
 
 
