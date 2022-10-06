@@ -59,15 +59,16 @@ def map_value_by_most_common(df, attr, group):
     size_attr_by_type = df.groupby([group, attr]).size()
     attr_by_type_mapping = size_attr_by_type.reset_index(level=0).groupby(group).agg(most_common = (0, 'idxmax'))
     attr_mapping_dict = attr_by_type_mapping.reset_index().set_index(group).to_dict()['most_common']
-    print(attr_mapping_dict)
+    # print(attr_mapping_dict)
     df[attr] = df.apply(lambda x: attr_mapping_dict[x[group]] if (pd.isna(x[attr]) and x[group] in attr_mapping_dict) else x[attr], axis=1)
     # print('Final na', attr, df[attr].isna().sum())
     # print(df[attr].value_counts())
 
-def process_num_beds_baths(df, method = 1):
+def process_num_beds_and_baths(df, method = 1):
     # num_beds
     upper = np.percentile(df.loc[df.num_beds.isna(), 'size_sqft'], 75)
-    df.loc[(df.num_beds.isna()) & (df.size_sqft <= upper), 'num_beds'] = 0
+
+    df.loc[(df.num_beds.isna() & (df.size_sqft <= upper)), 'num_beds'] = 0
 
     pn = df['property_name'][df.num_beds.isna()].unique()
     check1 = df.loc[np.in1d(df['property_name'], pn)]
@@ -75,12 +76,13 @@ def process_num_beds_baths(df, method = 1):
     df.sort_values(by=['property_name', 'size_sqft', 'num_beds'], ascending=False, inplace=True)
     df['num_beds'].fillna(method='ffill', inplace=True)
 
+
     # num_baths
     if method == 1:
         df.sort_values(by=['property_name', 'size_sqft', 'num_baths'], ascending=False, inplace=True)
         df['num_baths'].fillna(method='ffill', inplace=True)
     else:
-        map_value_by_most_common(df, 'num_beds', 'num_baths')
+        map_value_by_most_common(df, 'num_baths', 'num_beds')
 
 
 # tenure & year
