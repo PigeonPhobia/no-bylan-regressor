@@ -76,6 +76,8 @@ def process_num_beds_and_baths(df, method = 1):
     df.sort_values(by=['property_name', 'size_sqft', 'num_beds'], ascending=False, inplace=True)
     df['num_beds'].fillna(method='ffill', inplace=True)
 
+    correct = np.round(df.loc[(df['property_type'] == 'hdb'), 'num_beds'].mean())
+    df.loc[(df['property_type'] == 'hdb') & (df['num_beds'] == 0), 'num_beds'] = correct
 
     # num_baths
     if method == 1:
