@@ -49,7 +49,7 @@ def map_subzone_by_geo_location_knn(df):
     subzone_knn_classifier.fit(property_location, subzone_label)
     property_location_pred = df_na_subzone[['lat', 'lng']].to_numpy()
     pred_subzones = subzone_knn_classifier.predict(property_location_pred)
-    print(pred_subzones)
+    # print(pred_subzones)
     df.loc[subzone_mask_na, 'subzone'] = pred_subzones
 
 # num beds num bath
@@ -84,6 +84,11 @@ def process_num_beds_and_baths(df, method = 1):
     else:
         map_value_by_most_common(df, 'num_baths', 'num_beds')
 
+# property_type
+def process_property_type(df):
+    # Handle 'property_type' column (for test)
+    df['property_type'] = df['property_type'].str.lower()
+    df['property_type'] = df['property_type'].apply(lambda x: 'hdb' if 'hdb' in x else x)
 
 # tenure & year
 # pre-condition: property
@@ -174,6 +179,9 @@ def df_process_size_sqft(df):
     min_extre_list = []
     max_extre_list = []
 
+    # Jiechen add
+    uni_property_name = df['property_name'].unique()
+
     for uni_name in uni_property_name:
         data_desc = df[df['property_name']==uni_name]['size_sqft'].describe()
         mid_dt = data_desc['50%']    
@@ -216,6 +224,9 @@ def df_process_price(df):
     df['price_sqft'] = df['price'] / df['size_sqft']
     min_price_extre_list = []
     max_price_extre_list = []
+
+    # Jiechen add
+    uni_property_name = df['property_name'].unique()
 
     for uni_name in uni_property_name:
         price_describe = df[df['property_name']==uni_name]['price_sqft'].describe()
