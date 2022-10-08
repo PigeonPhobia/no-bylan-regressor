@@ -158,6 +158,15 @@ def normalize_tenure(df):
 #     df['tenure_type'] = pd.Series(tenure_type)
 #     df['leaselast_time'] = pd.Series(leasehold_time)
 
+def handle_years_and_tenure_nan(df_no_nan, attr):
+    #ffill (choose one)
+    df_no_nan[attr].fillna(method='ffill', inplace=True)
+    print(df_no_nan[attr].value_counts())
+    print("na number of", attr, "column is", df_no_nan[attr].isna().sum())
+    
+#     df_no_nan[attr].fillna(method='bfill', inplace=True)
+#     print(df_no_nan[attr].value_counts())
+#     print("na number of", attr, " column is", df_no_nan[attr].isna().sum())
 
 # 99.co/singapore/insider/big-leasehold-debate
 def normalize_tenure_to_three_cat(a):
