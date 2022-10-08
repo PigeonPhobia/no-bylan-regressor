@@ -165,6 +165,8 @@ def normalize_tenure_to_three_cat(a):
 
 # size price
 def df_process_size_sqft(df):
+    uni_property_name = df['property_name'].unique()
+    
     # preprocess obvious outliers
     df["size_sqft"] = np.where(df["size_sqft"] > 1e6, df["size_sqft"]/1000, df["size_sqft"])
     df["size_sqft"] = np.where(df["size_sqft"] > 60000, df["size_sqft"]/10, df["size_sqft"])
@@ -195,13 +197,13 @@ def df_process_size_sqft(df):
             mid_dt = data_desc['50%']    
             min_dt = data_desc['min']
             max_dt = data_desc['max']
-            # based on assumption that size_sqft properties with same property_name and same property_type cannot range outside [mid/3, mid*3]
-            # and assign value with similar size_sqft to this data point
+            # based on assumption that size_sqft properties with same property_name and same property_type cannot range outside [mid/5, mid*5]
+            # and assign value with median size_sqft to this data point
+            property_mean = df[(df['property_name'] == uni_name) & (df['property_type'] == p_type)]['size_sqft'].mean()
             if min_dt < mid_dt / 5:
-                df[(df['size_sqft'] < mid_dt/5) & (df['property_name'] == uni_name) & (df['property_type'] == p_type)] = mid_dt
-
+                df['size_sqft'] = np.where((df['size_sqft'] < mid_dt/5) & (df['property_name'] == uni_name) & (df['property_type'] == p_type), property_mean, df['size_sqft'])
             if max_dt > mid_dt * 5:
-                df[(df['size_sqft'] > mid_dt*5) & (df['property_name'] == uni_name) & (df['property_type'] == p_type)] = mid_dt
+                df['size_sqft'] = np.where((df['size_sqft'] > mid_dt*5) & (df['property_name'] == uni_name) & (df['property_type'] == p_type), property_mean, df['size_sqft'])
 
     for lst_id in min_extre_list:
         df["size_sqft"] = np.where(df["listing_id"] == lst_id, df["size_sqft"] * 10, df["size_sqft"])
@@ -211,7 +213,9 @@ def df_process_size_sqft(df):
 
 
 def df_process_price(df):
-    df = df.drop(df[df['price']==0].index)
+    uni_property_name = df['property_name'].unique()
+
+    df.drop(index = df[df['price']==0].index, inplace=True)
 
     df['price_sqft'] = df['price'] / df['size_sqft']
     min_price_extre_list = []
@@ -240,7 +244,7 @@ def df_process_price(df):
             df.loc[idx, ['price']] = price/10
             price /= 10
 
-
+    df.drop(columns=['price_sqft'], inplace=True)
 
 
 
