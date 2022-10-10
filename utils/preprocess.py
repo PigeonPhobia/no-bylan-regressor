@@ -11,7 +11,10 @@ def print_hello_world():
     print('Hello world!')
 
 
-def fix_abnormal_geo_location(df, mask):
+def fix_abnormal_geo_location(df):
+    lat_mask = df['lat'] > 1.5
+    lng_mask = (df['lng'] > 105) | (df['lng'] < 103)
+    mask = lat_mask & lng_mask
     property_lat_lng_dict = {
         '1953': (1.3164866999403357, 103.8574701820852),
         'pollen & bleu': (1.3135917327724542, 103.80674437513318),
@@ -45,12 +48,79 @@ def map_subzone_by_geo_location_knn(df):
     df_full_subzone = df[~subzone_mask_na]
     property_location = df_full_subzone[['lat', 'lng']].to_numpy()
     subzone_label = df_full_subzone['subzone'].tolist()
-    subzone_knn_classifier = KNeighborsClassifier(n_neighbors=10)  # tried for 3,5,10, almost same
+    subzone_knn_classifier = KNeighborsClassifier(n_neighbors=9)
     subzone_knn_classifier.fit(property_location, subzone_label)
     property_location_pred = df_na_subzone[['lat', 'lng']].to_numpy()
     pred_subzones = subzone_knn_classifier.predict(property_location_pred)
     # print(pred_subzones)
     df.loc[subzone_mask_na, 'subzone'] = pred_subzones
+
+
+def universalize_tenure(df):
+    tenure_mapping_dict = {
+        '99-year leasehold': ['99-year leasehold', '103-year leasehold', '110-year leasehold', '102-year leasehold',
+                              '100-year leasehold'],
+        '999-year leasehold': ['999-year leasehold', '956-year leasehold', '946-year leasehold', '929-year leasehold',
+                               '947-year leasehold'],
+        'freehold': ['freehold']
+    }
+
+    for tenure_key, tenure_values in tenure_mapping_dict.items():
+        for tenure_value in tenure_values:
+            df.loc[df['tenure'] == tenure_value, ('tenure')] = tenure_key
+
+
+def fillna_by_property_name(df, attr):
+    na_mask = df[attr].isna()
+    ds_mapping = df[~na_mask].groupby('property_name')[attr].first()
+    lambda_mapping = lambda x: ds_mapping[x['property_name']] if (pd.isna(x[attr]) and x['property_name'] in ds_mapping) else x[attr]
+    df[attr] = df.apply(lambda_mapping, axis=1)
+    # print(attr, 'still na', df[attr].isna().sum())
+
+
+def fillna_by_grouping(df, na_attr, grouping_attr):
+    # get count of each na_attr grouped by grouping_attr
+    na_mask = df[na_attr].isna()
+    ds_size_grouping = df[~na_mask].groupby([grouping_attr, na_attr]).size()
+    size_grouping_dict = ds_size_grouping.to_dict()
+
+    # transform dict
+    grouping_key_list, grouping_size_list = zip(*size_grouping_dict.items())
+    grouping_dict = dict()
+    for i, (grouping, attr) in enumerate(grouping_key_list):
+        size = grouping_size_list[i]
+        grouping_info = grouping_dict.setdefault(grouping, {'value': [], 'count': []})
+        grouping_info['value'].append(attr)
+        grouping_info['count'].append(size)
+    # print(grouping_dict)
+
+    # utility
+    def randomize_value_wrt_count(grouping_dict, grouping):
+        count_array = np.array(grouping_dict[grouping]['count'])
+        prob_array = count_array / count_array.sum()
+        return np.random.choice(grouping_dict[grouping]['value'], p=prob_array)
+
+    # utility
+    def fill_value_by_grouping(row, na_attr, grouping_attr, grouping_dict):
+        if row[grouping_attr] in grouping_dict:
+            return randomize_value_wrt_count(grouping_dict, row[grouping_attr])
+        else:
+            return row[na_attr]
+
+    # fill na value
+    df.loc[na_mask, na_attr] = df[na_mask].apply(lambda x: fill_value_by_grouping(x, na_attr, grouping_attr, grouping_dict), axis=1)
+    # print('still na', df[na_attr].isna().sum())
+
+
+def discretize_built_year(df, bins, labels):
+    ds_interval = pd.cut(df['built_year'], bins=bins)
+    ds_labels = pd.cut(ds_interval, bins).map(labels)
+    df['built_year'] = ds_labels
+
+
+def fill_conservation_house_built_year(df, value):
+    df.loc[df['property_type'] == 'conservation house', 'built_year'] = value
+
 
 # num beds num bath
 # better to run after section of tenure and year
@@ -129,14 +199,14 @@ def normalize_tenure(df):
 #         if df['tenure'][i] != 'nan':
 #             if 'leasehold' in df['tenure'][i]:
 #                 temp = int(df['tenure'][i].split('-')[0])
-                
+
 #                 if len(df['built_year'][i]) != 0:
 #                     hold_time = temp + float(df['built_year'][i]) - 2022
 #                     leasehold_time.append(hold_time)
-                    
+
 #                 else:
 #                     leasehold_time.append('nan')
-                
+
 #                 tenure_type.append(temp)
 # #                 tenure_type.append(normalize_tenure(temp))
 
@@ -150,7 +220,7 @@ def normalize_tenure(df):
 #                 if len(df['built_year'][i]) != 0:
 #                     hold_time = 99 + float(df['built_year'][i]) - 2022
 #                     leasehold_time.append(hold_time)
-                    
+
 #                     tenure_type.append(99)
 
 #             else:
@@ -165,7 +235,7 @@ def handle_years_and_tenure_nan(df_no_nan, attr):
     df_no_nan[attr].fillna(method='ffill', inplace=True)
     print(df_no_nan[attr].value_counts())
     print("na number of", attr, "column is", df_no_nan[attr].isna().sum())
-    
+
 #     df_no_nan[attr].fillna(method='bfill', inplace=True)
 #     print(df_no_nan[attr].value_counts())
 #     print("na number of", attr, " column is", df_no_nan[attr].isna().sum())
@@ -195,7 +265,7 @@ def df_process_size_sqft(df):
 
     for uni_name in uni_property_name:
         data_desc = df[df['property_name']==uni_name]['size_sqft'].describe()
-        mid_dt = data_desc['50%']    
+        mid_dt = data_desc['50%']
         min_dt = data_desc['min']
         max_dt = data_desc['max']
 
@@ -211,7 +281,7 @@ def df_process_size_sqft(df):
         prt_type = df[df['property_name']==uni_name]['property_type'].unique()
         for p_type in prt_type:
             prt_desc = df[(df['property_name']==uni_name) & (df['property_type']==p_type)]['size_sqft'].describe()
-            mid_dt = data_desc['50%']    
+            mid_dt = data_desc['50%']
             min_dt = data_desc['min']
             max_dt = data_desc['max']
             # based on assumption that size_sqft properties with same property_name and same property_type cannot range outside [mid/3, mid*3]
