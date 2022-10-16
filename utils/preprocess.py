@@ -162,6 +162,17 @@ def process_property_type(df):
     df['property_type'] = df['property_type'].str.lower()
     df['property_type'] = df['property_type'].apply(lambda x: 'hdb' if 'hdb' in x else x)
 
+# encoding with average price or price per sqft
+def encode_with_avg_price(df, attr):
+    ser = df.groupby(attr)['price'].mean()
+    df.loc[:, attr].apply(lambda x: ser[x])
+
+def encode_with_avg_price_sqft(df, attr):
+    df['pps'] = df['price'] / df['size_sqft']
+    ser = df.groupby(attr)['pps'].mean()
+    df.loc[:, attr].apply(lambda x: ser[x])
+    df.drop('pps', axis=1, inplace=True)
+
 # tenure & year
 # pre-condition: property
 def normalize_tenure(df):
