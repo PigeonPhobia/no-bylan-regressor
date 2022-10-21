@@ -112,12 +112,16 @@ def fillna_by_grouping(df, na_attr, grouping_attr):
     # print('still na', df[na_attr].isna().sum())
 
 
-# require size_sqft to be fixed first
-def fill_na_num_beds(df):
+def auto_fill_na_num_beds(df):
     na_mask = df['num_beds'].isna()
     sqft_mask = df['size_sqft'] < 1000.
     # all studios, 0 would be a meaningful value
     df.loc[na_mask & sqft_mask, 'num_beds'] = 0.
+
+
+# require size_sqft to be fixed first
+def fill_na_num_beds(df):
+    auto_fill_na_num_beds(df)
 
     na_mask = df['num_beds'].isna()
     # super big studio, often configured into multiple bedrooms, just follow num_baths here
@@ -128,6 +132,25 @@ def fill_na_num_beds(df):
     df.loc[3713, 'num_baths'] = 5.
     df.loc[5002, 'num_beds'] = 3.
     df.loc[5002, 'num_baths'] = 2.
+
+
+# require size_sqft to be fixed first
+def fill_na_num_beds_for_test(df):
+    auto_fill_na_num_beds(df)
+
+    na_mask = df['num_beds'].isna()
+    # super big studio, often configured into multiple bedrooms, just follow num_baths here
+    df.loc[na_mask, 'num_beds'] = df.loc[na_mask, 'num_baths']
+
+    # manually lookup, for num_baths also
+    df.loc[505, 'num_beds'] = 3.
+    df.loc[505, 'num_baths'] = 2.
+    df.loc[1086, 'num_beds'] = 6.
+    df.loc[1086, 'num_baths'] = 6.
+    df.loc[1558, 'num_beds'] = 3.
+    df.loc[1558, 'num_baths'] = 2.
+    df.loc[4855, 'num_beds'] = 3.
+    df.loc[4855, 'num_baths'] = 2.
 
 
 def discretize_built_year(df, bins, labels):
@@ -190,6 +213,16 @@ def fix_abnormal_sqft(df):
     # specific case
     df.loc[5976, 'size_sqft'] = 1313  # find from other same property records
 
+
+def fix_abnormal_sqft_for_test(df):
+    # super large hdb, ranging from 5,000 to 12,000
+    sqft_mask = (df['size_sqft'] > 5000) & (df['property_type'] == 'hdb')
+    df.loc[sqft_mask, 'size_sqft'] = df.loc[sqft_mask, 'size_sqft'] / 10
+
+    # special case
+    df.loc[3340, 'size_sqft'] = 6674  # find from other same property records
+
+
 def convert_sqm_to_sqft(df):
     sqm_to_sqft_multiplier = 10.764
     sqft_mask_sqm = (df['size_sqft'] < 200) & (df['size_sqft'] > 0)
@@ -200,6 +233,21 @@ def convert_sqm_to_sqft(df):
     df.loc[15027, 'size_sqft'] = df.loc[15027, 'size_sqft'] * sqm_to_sqft_multiplier
 
 
+def convert_sqm_to_sqft_for_test(df):
+    sqm_to_sqft_multiplier = 10.764
+    sqft_mask_sqm = (df['size_sqft'] < 200) & (df['size_sqft'] > 0)
+    df.loc[sqft_mask_sqm, 'size_sqft'] = df.loc[sqft_mask_sqm, 'size_sqft'] * sqm_to_sqft_multiplier
+
+
+def rearrange_columns(df):
+    cols = list(df.columns)
+    lng_index = cols.index('lng')
+    cols.insert(lng_index + 1, 'subzone_property_type_encoding')
+    cols = cols[:-1]
+    df = df[cols]
+    return df
+
+
 def target_encode_property_type_subzone(df):
     df_price_sqft = df.groupby(['subzone', 'property_type'])[['price', 'size_sqft']].sum().reset_index()
     df_price_sqft['sqft_price'] = df_price_sqft['price'] / df_price_sqft['size_sqft']
@@ -207,12 +255,41 @@ def target_encode_property_type_subzone(df):
     encoding_dict = df_price_sqft.set_index(['subzone', 'property_type']).to_dict()['sqft_price']
     df['subzone_property_type_encoding'] = df.apply(lambda x: encoding_dict[(x['subzone'], x['property_type'])], axis=1)
     df.drop(columns=['subzone', 'property_type'], inplace=True)
+    return encoding_dict
 
-    cols = list(df.columns)
-    a, b = cols.index('price'), cols.index('subzone_property_type_encoding')
-    cols[b], cols[a] = cols[a], cols[b]
-    df = df[cols]
-    return df, encoding_dict
+
+def generate_subzone_encoding_map(df):
+    df_price_sqft = df.groupby('subzone')[['price', 'size_sqft']].sum().reset_index()
+    df_price_sqft['sqft_price'] = df_price_sqft['price'] / df_price_sqft['size_sqft']
+    df_price_sqft.drop(columns=['price', 'size_sqft'], inplace=True)
+    encoding_dict = df_price_sqft.set_index('subzone').to_dict()['sqft_price']
+    return encoding_dict
+
+
+def generate_property_type_encoding_map(df):
+    df_price_sqft = df.groupby('property_type')[['price', 'size_sqft']].sum().reset_index()
+    df_price_sqft['sqft_price'] = df_price_sqft['price'] / df_price_sqft['size_sqft']
+    df_price_sqft.drop(columns=['price', 'size_sqft'], inplace=True)
+    encoding_dict = df_price_sqft.set_index('property_type').to_dict()['sqft_price']
+    return encoding_dict
+
+
+def target_encode_property_type_subzone_for_test(df, subzone_property_type_encoding, subzone_encoding, property_type_encoding):
+    df['subzone_property_type'] = list(zip(df['subzone'], df['property_type']))
+    df['subzone_property_type_encoding'] = np.nan
+
+    # map by combination of subzone and property_type
+    df['subzone_property_type_encoding'] = df['subzone_property_type'].map(subzone_property_type_encoding)
+
+    # map by subzone only
+    mask = df['subzone_property_type_encoding'].isna()
+    df.loc[mask, 'subzone_property_type_encoding'] = df[mask]['subzone'].map(subzone_encoding)
+
+    # map by property_type only
+    mask = df['subzone_property_type_encoding'].isna()
+    df.loc[mask, 'subzone_property_type_encoding'] = df[mask]['property_type'].map(property_type_encoding)
+
+    df.drop(columns=['subzone', 'property_type', 'subzone_property_type'], inplace=True)
 
 
 def encode_built_year(df, map_dict):
