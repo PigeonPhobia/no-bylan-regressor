@@ -5,6 +5,8 @@ from sklearn.neighbors import KNeighborsClassifier
 
 from matplotlib import pyplot as plt
 from scipy.stats import gaussian_kde
+from geopy import distance
+from tqdm import tqdm
 
 
 def print_hello_world():
@@ -248,6 +250,14 @@ def rearrange_columns(df):
     return df
 
 
+def move_price_to_last_column(df):
+    cols = list(df.columns)
+    cols.insert(len(cols), 'price')
+    cols.remove('price')
+    df = df[cols]
+    return df
+
+
 def target_encode_property_type_subzone(df):
     df_price_sqft = df.groupby(['subzone', 'property_type'])[['price', 'size_sqft']].sum().reset_index()
     df_price_sqft['sqft_price'] = df_price_sqft['price'] / df_price_sqft['size_sqft']
@@ -320,6 +330,35 @@ def encode_planning_area(df, pa_list):
     df = df.join(df_pa)
     df.drop(columns=['planning_area'], inplace=True)
     return df
+
+
+def calculate_distance_km(df_property, df_target):
+    len_property = len(df_property)
+    len_target = len(df_target)
+    distance_array = np.zeros([len_property, len_target])
+    for idx_property in tqdm(range(len_property)):
+        property_loc = df_property.iloc[idx_property, :]
+        for idx_target in range(len_target):
+            target_loc = df_target.iloc[idx_target, :]
+            coord_property = (property_loc['lat'], property_loc['lng'])
+            coord_target = (target_loc['lat'], target_loc['lng'])
+            distance_km = distance.distance(coord_property, coord_target).km
+            distance_array[idx_property][idx_target] = distance_km
+    return distance_array
+
+
+def populate_num_targets_within_range(df, df_property, distance_array, lower, upper, key):
+    num_targets = ((distance_array < upper) & (distance_array >= lower)).sum(axis=1)
+    df_property[key] = num_targets
+    mapping_dict = df_property.to_dict()[key]
+    df[key] = df['property_name'].map(mapping_dict)
+
+
+def populate_distance_to_nearest_target(df, df_property, distance_array, key):
+    distances = distance_array.min(axis=1)
+    df_property[key] = distances
+    mapping_dict = df_property.to_dict()[key]
+    df[key] = df['property_name'].map(mapping_dict)
 
 
 # num beds num bath
