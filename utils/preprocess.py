@@ -332,6 +332,23 @@ def encode_planning_area(df, pa_list):
     return df
 
 
+def encode_property_type(df):
+    df_type_list = df['property_type'].to_list()
+    type_list = sorted(df['property_type'].unique())
+    type_dict = {k: v for v, k in enumerate(type_list)}
+    ont_hot_length = len(type_list)
+    one_hot_array = np.zeros((len(df_type_list), ont_hot_length))
+    for i, type in enumerate(df_type_list):
+        one_hot_index = type_dict[type]
+        one_hot_array[i][one_hot_index] = 1.
+    type_columns = ['pt_' + type.replace(' ', '_') for type in type_list]
+    df_type = pd.DataFrame(one_hot_array, columns=type_columns)
+    df.reset_index(drop=True, inplace=True)
+    df_type.reset_index(drop=True, inplace=True)
+    df = df.join(df_type)
+    return df
+
+
 def calculate_distance_km(df_property, df_target):
     len_property = len(df_property)
     len_target = len(df_target)
