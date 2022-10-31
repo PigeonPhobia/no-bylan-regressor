@@ -1,0 +1,287 @@
+from,to
+tanjong pagar,raffles place
+mayflower,bright hill
+macpherson,mattar
+rochor,little india
+kent ridge,one-north
+telok ayer,downtown
+ubi,macpherson
+dover,buona vista
+boon keng,farrer park
+chinatown,clarke quay
+ubi,kaki bukit
+holland village,farrer road
+telok blangah,harbourfront
+caldecott,botanic gardens
+kranji,marsiling
+changi airport,expo
+buangkok,sengkang
+newton,stevens
+bedok,tanah merah
+kranji,yew tee
+bukit batok,jurong east
+fort canning,chinatown
+serangoon,lorong chuan
+kembangan,bedok
+woodleigh,serangoon
+beauty world,king albert park
+orchard,newton
+bugis,lavender
+nicoll highway,stadium
+bedok north,bedok reservoir
+jurong east,clementi
+bishan,braddell
+outram park,tanjong pagar
+bedok,kembangan
+woodlands south,woodlands
+admiralty,sembawang
+ang mo kio,yio chu kang
+tanah merah,bedok
+marina bay,bayfront
+mattar,macpherson
+chinatown,telok ayer
+promenade,bugis
+downtown,telok ayer
+marymount,bishan
+kaki bukit,bedok north
+joo koon,pioneer
+redhill,tiong bahru
+bukit gombak,choa chu kang
+dakota,mountbatten
+clementi,jurong east
+city hall,raffles place
+sengkang,buangkok
+jalan besar,bendemeer
+dhoby ghaut,clarke quay
+simei,tanah merah
+bayfront,downtown
+outram park,chinatown
+bencoolen,jalan besar
+newton,little india
+outram park,harbourfront
+pioneer,boon lay
+khatib,yio chu kang
+yio chu kang,ang mo kio
+promenade,bayfront
+bukit panjang,cashew
+bras basah,esplanade
+somerset,dhoby ghaut
+braddell,toa payoh
+newton,orchard
+macpherson,paya lebar
+farrer road,botanic gardens
+telok blangah,labrador park
+sengkang,punggol
+bright hill,mayflower
+one-north,buona vista
+beauty world,hillview
+stadium,nicoll highway
+little india,dhoby ghaut
+toa payoh,braddell
+tampines,tampines east
+geylang bahru,mattar
+gul circle,joo koon
+little india,rochor
+jurong east,chinese garden
+yio chu kang,khatib
+woodlands,admiralty
+tai seng,bartley
+expo,changi airport
+kallang,lavender
+city hall,dhoby ghaut
+holland village,buona vista
+choa chu kang,yew tee
+tanah merah,simei
+dhoby ghaut,city hall
+novena,toa payoh
+hougang,kovan
+clarke quay,chinatown
+harbourfront,outram park
+upper thomson,caldecott
+sixth avenue,tan kah kee
+bedok reservoir,tampines west
+bright hill,upper thomson
+promenade,esplanade
+mayflower,lentor
+lorong chuan,serangoon
+jalan besar,bencoolen
+eunos,paya lebar
+kembangan,eunos
+farrer park,little india
+queenstown,redhill
+tampines east,upper changi
+tuas crescent,gul circle
+ang mo kio,bishan
+bartley,tai seng
+mountbatten,dakota
+chinese garden,jurong east
+canberra,yishun
+bishan,marymount
+botanic gardens,tan kah kee
+tampines,simei
+dhoby ghaut,bras basah
+newton,novena
+mattar,geylang bahru
+canberra,sembawang
+buona vista,one-north
+chinatown,fort canning
+paya lebar,eunos
+tampines,pasir ris
+pasir panjang,haw par villa
+woodleigh,potong pasir
+potong pasir,boon keng
+punggol,sengkang
+bendemeer,geylang bahru
+tiong bahru,redhill
+kent ridge,haw par villa
+jurong east,bukit batok
+telok ayer,chinatown
+serangoon,bartley
+boon keng,potong pasir
+raffles place,tanjong pagar
+buona vista,commonwealth
+yew tee,choa chu kang
+bugis,city hall
+upper thomson,bright hill
+woodlands south,springleaf
+woodlands,marsiling
+buona vista,holland village
+kaki bukit,ubi
+bishan,lorong chuan
+downtown,bayfront
+bugis,rochor
+yishun,khatib
+paya lebar,aljunied
+bishan,ang mo kio
+kovan,hougang
+tan kah kee,botanic gardens
+promenade,nicoll highway
+serangoon,woodleigh
+bras basah,dhoby ghaut
+macpherson,tai seng
+kallang,aljunied
+tanah merah,expo
+chinatown,outram park
+aljunied,kallang
+haw par villa,kent ridge
+esplanade,promenade
+farrer road,holland village
+clarke quay,dhoby ghaut
+rochor,bugis
+hougang,buangkok
+tampines west,tampines
+haw par villa,pasir panjang
+lakeside,chinese garden
+outram park,tiong bahru
+lentor,springleaf
+yishun,canberra
+king albert park,beauty world
+hillview,cashew
+boon lay,pioneer
+sembawang,admiralty
+tuas west road,tuas crescent
+caldecott,marymount
+botanic gardens,farrer road
+queenstown,commonwealth
+bencoolen,fort canning
+bukit gombak,bukit batok
+lentor,mayflower
+kovan,serangoon
+somerset,orchard
+chinese garden,lakeside
+lakeside,boon lay
+marina bay,marina south pier
+paya lebar,macpherson
+pioneer,joo koon
+stevens,newton
+simei,tampines
+potong pasir,woodleigh
+orchard,somerset
+toa payoh,novena
+buangkok,hougang
+eunos,kembangan
+dover,clementi
+tampines,tampines west
+lavender,kallang
+lavender,bugis
+upper changi,expo
+bayfront,promenade
+macpherson,ubi
+raffles place,city hall
+stadium,mountbatten
+bedok reservoir,bedok north
+king albert park,sixth avenue
+springleaf,woodlands south
+woodlands,woodlands south
+tuas crescent,tuas west road
+braddell,bishan
+buona vista,dover
+bendemeer,jalan besar
+raffles place,marina bay
+little india,farrer park
+bugis,promenade
+novena,newton
+choa chu kang,bukit gombak
+harbourfront,telok blangah
+commonwealth,buona vista
+stevens,botanic gardens
+bartley,serangoon
+boon lay,lakeside
+labrador park,pasir panjang
+sembawang,canberra
+marsiling,kranji
+esplanade,bras basah
+clementi,dover
+tanjong pagar,outram park
+botanic gardens,stevens
+woodlands,woodlands north
+marina bay,raffles place
+tiong bahru,outram park
+yew tee,kranji
+tampines east,tampines
+labrador park,telok blangah
+dakota,paya lebar
+bayfront,marina bay
+fort canning,bencoolen
+cashew,bukit panjang
+expo,tanah merah
+admiralty,woodlands
+pasir panjang,labrador park
+joo koon,gul circle
+bedok north,kaki bukit
+farrer park,boon keng
+gul circle,tuas crescent
+expo,upper changi
+lorong chuan,bishan
+city hall,bugis
+tuas link,tuas west road
+woodlands north,woodlands
+bukit batok,bukit gombak
+commonwealth,queenstown
+mountbatten,stadium
+khatib,yishun
+caldecott,upper thomson
+tuas west road,tuas link
+geylang bahru,bendemeer
+pasir ris,tampines
+tai seng,macpherson
+one-north,kent ridge
+hillview,beauty world
+springleaf,lentor
+dhoby ghaut,little india
+redhill,queenstown
+sixth avenue,king albert park
+marina south pier,marina bay
+cashew,hillview
+aljunied,paya lebar
+marsiling,woodlands
+little india,newton
+paya lebar,dakota
+tan kah kee,sixth avenue
+botanic gardens,caldecott
+marymount,caldecott
+nicoll highway,promenade
+upper changi,tampines east
+tampines west,bedok reservoir
+serangoon,kovan
+dhoby ghaut,somerset
