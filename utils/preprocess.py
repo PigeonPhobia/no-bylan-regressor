@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
+import networkx as nx
 from geopy import distance
 from matplotlib import pyplot as plt
 from scipy.stats import gaussian_kde
 from sklearn.neighbors import KNeighborsClassifier
 from tqdm import tqdm
+from collections import Counter
 
 def fix_abnormal_geo_location(df):
     lat_mask = df['lat'] > 1.5
@@ -388,6 +390,16 @@ def process_property_type(df):
     # Handle 'property_type' column (for test)
     df['property_type'] = df['property_type'].str.lower()
     df['property_type'] = df['property_type'].apply(lambda x: 'hdb' if 'hdb' in x else x)
+
+
+def get_betweenness(G, start_list, end_list):
+    intermediate_stations = []
+    for start in tqdm(start_list):
+        for end in end_list:
+            stations = nx.shortest_path(G, start, end)
+            if len(stations) > 2:
+                intermediate_stations.extend(stations[1:-1])
+    return Counter(intermediate_stations)
 
 
 
