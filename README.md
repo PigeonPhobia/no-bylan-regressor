@@ -1,4 +1,7 @@
 # Term Project for NUS CS5228 AY2022/2023 Sem 1
+*Team Number: 25* <br />
+*Team Name: No Bylan* <br />
+*Members: Song Mingyue, Ou Jiechen, Zhu Lianda, Jia Baoqi*
 1. You are strongly advised to read our project report before looking into our project code base.
 2. Please run following command to install requirements
 ```
